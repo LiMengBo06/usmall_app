@@ -1,15 +1,12 @@
 <template>
   <div>
     <el-dialog :title="info.isadd?'添加轮播图':'编辑轮播图'" :visible.sync="info.isshow" @closed="cancel">
-        
       <el-form :model="user">
-
-     
         <el-form-item label="标题" label-width="100px">
           <el-input v-model="user.title" autocomplete="off"></el-input>
         </el-form-item>
 
-          <el-form-item label="图片" label-width="100px" v-if="user.pid!==0">
+        <el-form-item label="图片" label-width="100px" v-if="user.pid!==0">
           <!-- 一、原生js的上传文件 -->
           <div class="my-upload">
             <div class="add">+</div>
@@ -27,12 +24,9 @@
           >
             <img v-if="imgUrl" :src="imgUrl" class="avatar" />
             <i v-else class="el-icon-plus avatar-uploader-icon"></i>
-          </el-upload> -->
+          </el-upload>-->
         </el-form-item>
 
-      
-      
-     
         <el-form-item label="状态" label-width="100px">
           <el-switch v-model="user.status" :active-value="1" :inactive-value="2"></el-switch>
         </el-form-item>
@@ -49,7 +43,11 @@
 </template>
 
 <script>
-import {  reqbannerAdd, reqbannerDetail, reqbannerUpdate } from "../../../utils/http";
+import {
+  reqbannerAdd,
+  reqbannerDetail,
+  reqbannerUpdate,
+} from "../../../utils/http";
 import { erroralert, successalert } from "../../../utils/alert";
 import path from "path";
 export default {
@@ -58,11 +56,10 @@ export default {
     return {
       imgUrl: "",
       user: {
-        title:"",
-        img:null,
+        title: "",
+        img: null,
         status: 1,
-      },   
-     
+      },
     };
   },
   methods: {
@@ -73,73 +70,90 @@ export default {
       this.info.isshow = false;
     },
     empty() {
-       this.imgUrl = "";
-      this.user= {
-        title:"",
+      this.imgUrl = "";
+      this.user = {
+        title: "",
         img: "",
-        status: 1
+        status: 1,
       };
-     
     },
-    add() {            
-      reqbannerAdd(this.user).then((res) => {
-        if (res.data.code == 200) {
-          successalert(res.data.msg);
-          this.cancel();
-          this.empty();
-          this.$emit("init");
+
+    //  封装的验证
+    checkProps() {
+      return new Promise((resolve, reject) => {
+        if (this.user.title == "") {
+          erroralert("请输入轮播图标题");
+          return;
         }
+        if (!this.user.img) {
+          erroralert("请上传图片");
+          return;
+        }
+
+        resolve();
       });
     },
-   
-    changeImg(e){
+
+    add() {
+      this.checkProps().then(() => {
+        reqbannerAdd(this.user).then((res) => {
+          if (res.data.code == 200) {
+            successalert(res.data.msg);
+            this.cancel();
+            this.empty();
+            this.$emit("init");
+          }
+        });
+      });
+    },
+
+    changeImg(e) {
       let file = e.target.files[0];
-      if(file.size>2*1024*1024){
+      if (file.size > 2 * 1024 * 1024) {
         erroralert("文件大小不能超过2M");
         return;
       }
 
       // 后缀名
       let extname = path.extname(file.name);
-      let arr = [".png",".gif",".jpg",".jpeg"];
-      if(!arr.some(item =>item===extname)){
+      let arr = [".png", ".gif", ".jpg", ".jpeg"];
+      if (!arr.some((item) => item === extname)) {
         erroralert("请上传图片");
         return;
       }
-         // 将文件生成一个url地址
+      // 将文件生成一个url地址
       this.imgUrl = URL.createObjectURL(file);
 
       //赋值给user.img
       this.user.img = file;
-
-
     },
     // 获取详情
     getOne(id) {
       reqbannerDetail({ id: id }).then((res) => {
         if (res.data.code == 200) {
           this.user = res.data.list;
-         //补id
+          //补id
           this.user.id = id;
           //处理图片
           this.imgUrl = this.$pre + this.user.img;
-          
         }
       });
     },
     // 修改
-    update() {    
-      reqbannerUpdate(this.user).then((res) => {
-        if (res.data.code == 200) {
-          //弹成功
-          successalert(res.data.msg);
-          //弹框消失
-          this.cancel();
-          //数据清空
-          this.empty();
-          //刷新list
-          this.$emit("init");
-        }
+    update() {
+      this.checkProps().then(() => {
+        reqbannerUpdate(this.user).then((res) => {
+          if (res.data.code == 200) {
+            //弹成功
+            successalert(res.data.msg);
+            //弹框消失
+            this.cancel();
+            //数据清空
+            this.empty();
+            //刷新list
+            this.$emit("init");
+          }
+        });
       });
     },
   },

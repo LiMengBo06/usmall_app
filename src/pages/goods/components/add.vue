@@ -78,6 +78,7 @@
         <el-form-item label="状态" label-width="100px">
           <el-switch v-model="user.status" :active-value="1" :inactive-value="2"></el-switch>
         </el-form-item>
+
         <el-form-item label="商品描述" label-width="100px">
           <div id="editor" v-if="info.isshow"></div>
         </el-form-item>
@@ -88,7 +89,6 @@
         <el-button type="primary" @click="add" v-if="info.isadd">添 加</el-button>
         <el-button type="primary" @click="update" v-else>修 改</el-button>
       </div>
-      {{showSpecsAttr}}
     </el-dialog>
   </div>
 </template>
@@ -100,7 +100,7 @@ import {
   reqgoodsDetail,
   reqgoodsUpdate,
 } from "../../../utils/http";
-import { successalert } from "../../../utils/alert";
+import { successalert,erroralert } from "../../../utils/alert";
 import E from "wangeditor";
 export default {
   props: ["info"],
@@ -195,21 +195,62 @@ export default {
       this.showSpecsAttr = [];
     },
 
-    add() {
-      this.user.description = this.editor.txt.html();
-      let data = {
-        ...this.user,
-        specsattr: JSON.stringify(this.user.specsattr),
-      };
-      console.log(data)
-      reqgoodsAdd(data).then((res) => {
-        if (res.data.code == 200) {
-          this.cancel();
-          this.empty();
-          successalert(res.data.msg);
-          this.reqList();
-          this.reqTotal();
+    // 封装验证
+    checkProps() {
+      return new Promise((resolve, reject) => {
+        if (this.user.first_cateid === "") {
+          erroralert("一级分类不能为空");
+          return;
         }
+        if (this.user.second_cateid === "") {
+          erroralert("二级分类不能为空");
+          return;
+        }
+        if (this.user.goodsname === "") {
+          erroralert("商品名称不能为空");
+          return;
+        }
+        if (this.user.price === "") {
+          erroralert("商品价格不能为空");
+          return;
+        }
+        if (this.user.market_price === "") {
+          erroralert("商品市场价格不能为空");
+          return;
+        }
+        if (!this.user.img) {
+          erroralert("请上传图片");
+          return;
+        }
+        if (this.user.specsattr.length === 0) {
+          erroralert("请选择规格属性");
+          return;
+        }
+        if (this.editor.txt.html() === "") {
+          erroralert("请输入商品描述");
+          return;
+        }
+        resolve();
+      });
+    },
+
+    add() {
+      this.checkProps().then(() => {
+        this.user.description = this.editor.txt.html();
+        let data = {
+          ...this.user,
+          specsattr: JSON.stringify(this.user.specsattr),
+        };
+        console.log(data);
+        reqgoodsAdd(data).then((res) => {
+          if (res.data.code == 200) {
+            this.cancel();
+            this.empty();
+            successalert(res.data.msg);
+            this.reqList();
+            this.reqTotal();
+          }
+        });
       });
     },
 
@@ -230,19 +271,21 @@ export default {
     },
     //修改
     update() {
-      this.user.description = this.editor.txt.html();
-      let data = {
-        ...this.user,
-        specsattr: JSON.stringify(this.user.specsattr),
-      };
+      this.checkProps().then(() => {
+        this.user.description = this.editor.txt.html();
+        let data = {
+          ...this.user,
+          specsattr: JSON.stringify(this.user.specsattr),
+        };
 
-      reqgoodsUpdate(data).then((res) => {
-        if (res.data.code == 200) {
-          this.cancel();
-          this.empty();
-          successalert(res.data.msg);
-          this.reqList();
-        }
+        reqgoodsUpdate(data).then((res) => {
+          if (res.data.code == 200) {
+            this.cancel();
+            this.empty();
+            successalert(res.data.msg);
+            this.reqList();
+          }
+        });
       });
     },
     //创建富文本编辑器

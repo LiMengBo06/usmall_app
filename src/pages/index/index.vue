@@ -3,7 +3,7 @@
     <el-container class="index">
       <el-aside width="200px">
         <el-menu
-         default-active="/"
+          default-active="/"
           class="el-menu-vertical-demo"
           background-color="#545c64"
           text-color="#fff"
@@ -15,40 +15,31 @@
             <span slot="title">首页</span>
           </el-menu-item>
 
-          <el-submenu index="1">
-            <template slot="title">
-              <i class="el-icon-location"></i>
-              <span>系统设置</span>
-            </template>
-            <el-menu-item-group>
-              <el-menu-item index="/menu">菜单管理</el-menu-item>
-              <el-menu-item index="/role">角色管理</el-menu-item>
-              <el-menu-item index="/manage">管理员管理</el-menu-item>
-            </el-menu-item-group>
-          </el-submenu>
-
-           <el-submenu index="3">
-            <template slot="title">
-              <i class="el-icon-location"></i>
-              <span>商城管理</span>
-            </template>
-            <el-menu-item-group>
-              <el-menu-item index="/cate">商品分类</el-menu-item>
-              <el-menu-item index="/specs">商品规格</el-menu-item>
-              <el-menu-item index="/goods">商品管理</el-menu-item>
-              <el-menu-item index="/member">会员管理</el-menu-item>
-              <el-menu-item index="/banner">轮播图管理</el-menu-item>
-              <el-menu-item index="/seckill">秒杀活动</el-menu-item>
-            </el-menu-item-group>
-          </el-submenu>
+          <div v-for="item in userInfo.menus" :key="item.id">
+            <el-menu-item v-if="!item.children" :index="item.url">{{item.title}}</el-menu-item>
+            <!-- 有目录有菜单 -->
+            <el-submenu :index="item.id+''" v-if="item.children">
+              <template slot="title">
+                <i :class="item.icon"></i>
+                <span>{{item.title}}</span>
+              </template>
+              <el-menu-item-group>
+                <el-menu-item v-for="i in item.children" :key="i.id" :index="i.url">{{i.title}}</el-menu-item>
+              </el-menu-item-group>
+            </el-submenu>
+          </div>
         </el-menu>
       </el-aside>
 
       <el-container>
-        <el-header>Header</el-header>
+        <el-header>
+          <span>{{userInfo.username}}</span>
+          <el-button type="danger" @click="goout">退出登录</el-button>
+        </el-header>
+
         <!-- 主体 -->
         <el-main>
-        
+          <!-- 面包屑 -->
           <el-breadcrumb separator="/" v-if="$route.name">
             <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
             <el-breadcrumb-item>{{$route.name}}</el-breadcrumb-item>
@@ -62,7 +53,23 @@
 </template>
 
 <script>
-export default {};
+import { mapGetters, mapActions } from "vuex";
+export default {
+  computed: {
+    ...mapGetters({
+      userInfo: "userInfo",
+    }),
+  },
+  methods: {
+    ...mapActions({
+      changeUser: "changeUser",
+    }),
+    goout() {
+      this.changeUser({});
+      this.$router.replace("/login");
+    },
+  },
+};
 </script>
 
 <style scoped>

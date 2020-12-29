@@ -93,9 +93,24 @@ export default {
         status: 1,
       };
     },
+    // 验证
+     checkProps(){
+    return new Promise((resolve,reject)=>{
+       if (this.user.title == "") {
+          erroralert("请输入菜单名称");
+          return;
+        }
+
+        resolve();
+
+    });
+
+  },   
+
     // 清空
     add() {
-      reqMenuAdd(this.user).then((res) => {
+       this.checkProps().then(() => {
+           reqMenuAdd(this.user).then((res) => {
         if (res.data.code == 200) {
           successalert(res.data.msg);
           this.cancel();
@@ -103,6 +118,9 @@ export default {
           this.$emit("init");
         }
       });
+           
+        });
+    
     },
     //   修改顶级菜单
     changePid() {
@@ -124,7 +142,8 @@ export default {
     },
     // 修改
     update() {
-      reqMenuUpdate(this.user).then((res) => {
+      this.checkProps().then(() => {
+         reqMenuUpdate(this.user).then((res) => {
         if (res.data.code == 200) {
           //弹成功
           successalert(res.data.msg);
@@ -136,6 +155,10 @@ export default {
           this.$emit("init");
         }
       });
+          
+        });
+
+     
     },
     
   },

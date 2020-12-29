@@ -2,6 +2,8 @@ import axios from "axios"
 import qs from "qs"
 import Vue from "Vue"
 import {erroralert} from "./alert"
+import store from "../store"
+import router from "../router"
 // 开发环境使用8080
 let baseUrl ='/api'
 Vue.prototype.$pre="http://localhost:3000"
@@ -10,7 +12,17 @@ Vue.prototype.$pre="http://localhost:3000"
 // let baseUrl =""
 // Vue.prototype.$pre=""
 
-// 相应拦截()
+
+// 请求拦截
+axios.interceptors.request.use(config=>{
+    if(config.url!==baseUrl+"/api/userlogin"){
+        config.headers.authorization=store.state.userInfo.token
+    }
+     return config
+})
+
+
+// 响应拦截()
 axios.interceptors.response.use(res=>{
   
     if(res.data.code!==200){
@@ -21,6 +33,11 @@ axios.interceptors.response.use(res=>{
         res.data.list=[]
     }
 
+    if(res.data.msg==="登录已过期或访问权限受限"){
+        store.dispatch("changeUser",{})
+        router.push("/login")
+    }
+
     console.group("本次请求的地址是：" + res.config.url)
     console.log(res)
     console.groupEnd()
@@ -29,7 +46,16 @@ axios.interceptors.response.use(res=>{
 
 })
 
+// 登录
+export let reqLogin =(user)=>{
+    return axios({
+        url: baseUrl + "/api/userlogin",
+        method: "post",
+        data: qs.stringify(user)
+    })
+}
 
+// 菜单管理。。。。。。。。。。。。。。。。
 
 // 添加
 export const reqMenuAdd=(user)=>{

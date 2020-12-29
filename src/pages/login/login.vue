@@ -2,35 +2,57 @@
   <div class="login">
     <div class="con">
       <h3 class="center">登录</h3>
-      <div class="ipt">
-        <el-input placeholder="请输入账号" v-model="user.name" clearable></el-input>
-      </div>
-
-      <div class="ipt">
-        <el-input placeholder="请输入密码" v-model="user.pass" clearable show-password></el-input>
-      </div>
+     
+      <el-form :model="user" :rules="rules">
+        <el-form-item prop="username">
+          <el-input v-model="user.username" placeholder="请输入账号" clearable></el-input>
+        </el-form-item>
+        <el-form-item prop="password">
+          <el-input v-model="user.password" placeholder="请输入密码" clearable show-password></el-input>
+        </el-form-item>
 
       <div class="center">
            <el-button type="primary" @click="login">登录</el-button>
 
       </div>
+      </el-form>
     </div>
   </div>
 </template>
 
 <script>
+import {reqLogin} from "../../utils/http"
+import { mapActions } from 'vuex';
 export default {
   data() {
     return {
       user: {
-        name: "",
-        pass: "",
+         username: "",
+         password: ""
       },
+      rules:{
+           username: [
+          { required: true, message: "请输入账号", trigger: "blur" },
+          { min: 3, max: 10, message: "长度在 3 到 10 个字符", trigger: "blur" }
+        ],
+        password: [
+          { required: true, message: "请输入密码", trigger: "blur" },
+          { min: 2, max: 5, message: "长度在 2 到 5 个字符", trigger: "blur" }
+        ]
+      }
     };
   },
   methods: {
+    ...mapActions({
+       changeUser:"changeUser"
+    }),
     login() {
-      this.$router.push("/");
+      reqLogin(this.user).then(res=>{
+        if(res.data.code===200){
+          this.changeUser(res.data.list)
+          this.$router.push("/")
+        }
+      })
     },
   },
 };

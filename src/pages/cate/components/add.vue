@@ -32,22 +32,21 @@
         <el-button type="primary" @click="add" v-if="info.isadd">添 加</el-button>
         <el-button type="primary" @click="update" v-else>修 改</el-button>
       </div>
-     
     </el-dialog>
   </div>
 </template>
 
 <script>
-import path from "path"
+import path from "path";
 import { reqcateAdd, reqcateDetail, reqcateUpdate } from "../../../utils/http";
 import { erroralert, successalert } from "../../../utils/alert";
-import {mapActions,mapGetters} from "vuex"
+import { mapActions, mapGetters } from "vuex";
 export default {
   props: ["info"],
-    computed:{
+  computed: {
     ...mapGetters({
-      list:"cate/list"
-    })
+      list: "cate/list",
+    }),
   },
   data() {
     return {
@@ -60,15 +59,14 @@ export default {
       },
     };
   },
- methods: {
+  methods: {
     ...mapActions({
-      "reqList":"cate/reqList"
+      reqList: "cate/reqList",
     }),
-  
+
     changeImg(e) {
       let file = e.target.files[0];
 
-     
       if (file.size > 2 * 1024 * 1024) {
         erroralert("文件大小不能超过2M");
         return;
@@ -76,7 +74,7 @@ export default {
 
       let extname = path.extname(file.name);
       let arr = [".png", ".gif", ".jpg", ".jpeg"];
-      if (!arr.some(item => item === extname)) {
+      if (!arr.some((item) => item === extname)) {
         erroralert("请上传图片");
         return;
       }
@@ -89,11 +87,11 @@ export default {
     },
 
     //ui上传文件
-    changeImg2(e){
-        let file=e.raw;
-        //判断
-        this.imgUrl=URL.createObjectURL(file)
-        this.user.img=file;
+    changeImg2(e) {
+      let file = e.raw;
+      //判断
+      this.imgUrl = URL.createObjectURL(file);
+      this.user.img = file;
     },
 
     //6.点了取消
@@ -112,28 +110,42 @@ export default {
         pid: "",
         catename: "",
         img: null,
-        status: 1
+        status: 1,
       };
     },
+
+    // 验证
+    checkProps() {
+      return new Promise((resolve, reject) => {
+        if (this.user.catename == "") {
+          erroralert("请输入分类名称");
+          return;
+        }
+        resolve();
+      });
+    },
+
     //4.添加
     add() {
-      reqcateAdd(this.user).then(res => {
-        if (res.data.code == 200) {
-          // 封装了成功弹框
-          successalert(res.data.msg);
-          //弹框消失
-          this.cancel();
-          //5.清空user
-          this.empty();
-          //25.列表刷新
-          this.reqList()
-        }
+      this.checkProps().then(() => {
+        reqcateAdd(this.user).then((res) => {
+          if (res.data.code == 200) {
+            // 封装了成功弹框
+            successalert(res.data.msg);
+            //弹框消失
+            this.cancel();
+            //5.清空user
+            this.empty();
+            //25.列表刷新
+            this.reqList();
+          }
+        });
       });
     },
 
     //10.获取详情
     getOne(id) {
-      reqcateDetail({ id: id }).then(res => {
+      reqcateDetail({ id: id }).then((res) => {
         if (res.data.code == 200) {
           this.user = res.data.list;
           //补id
@@ -145,21 +157,23 @@ export default {
     },
     //40修改
     update() {
-      reqcateUpdate(this.user).then(res => {
-        if (res.data.code == 200) {
-          //弹成功
-          successalert(res.data.msg);
-          //弹框消失
-          this.cancel();
-          //数据清空
-          this.empty();
-          //刷新list
-          this.reqList()
-        }
+      this.checkProps().then(() => {
+        reqcateUpdate(this.user).then((res) => {
+          if (res.data.code == 200) {
+            //弹成功
+            successalert(res.data.msg);
+            //弹框消失
+            this.cancel();
+            //数据清空
+            this.empty();
+            //刷新list
+            this.reqList();
+          }
+        });
       });
-    }
+    },
   },
-   mounted() {},
+  mounted() {},
 };
 </script>
 

@@ -71,9 +71,23 @@ export default {
       };
       this.$refs.tree.setCheckedKeys([])
     },
+    // 验证
+     checkProps(){
+    return new Promise((resolve,reject)=>{
+       if (this.user.rolename == "") {
+          erroralert("请输入角色名称");
+          return;
+        }
+        resolve();
+
+    });
+
+  },   
+
     // 清空
     add() { 
-      this.user.menus=JSON.stringify(this.$refs.tree.getCheckedKeys())
+       this.checkProps().then(() => {
+            this.user.menus=JSON.stringify(this.$refs.tree.getCheckedKeys())
       reqRoleAdd(this.user).then((res) => {
         if (res.data.code == 200) {
           successalert(res.data.msg);
@@ -82,6 +96,8 @@ export default {
           this.$emit("init");
         }
       });
+        });
+     
     },
     //   修改顶级菜单
     changePid() {
@@ -105,11 +121,19 @@ export default {
     },
     // 修改
     update() {
-       this.user.menus=JSON.stringify(this.$refs.tree.getCheckedKeys())
+       this.checkProps().then(() => {
+            this.user.menus=JSON.stringify(this.$refs.tree.getCheckedKeys())
       reqRoleUpdate(this.user).then((res) => {
         if (res.data.code == 200) {
           //弹成功
           successalert(res.data.msg);
+
+          if(this.user.id==this.userInfo.roleid){
+            this.cahngeUser({});
+            this.$router.push("/login");
+            return;
+          }
+
           //弹框消失
           this.cancel();
           //数据清空
@@ -118,6 +142,8 @@ export default {
           this.$emit("init");
         }
       });
+        });
+      
     },
   },
 };
