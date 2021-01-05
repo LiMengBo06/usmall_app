@@ -40,7 +40,7 @@ import {
   reqspecsDetail,
   reqspecsUpdate,
 } from "../../../utils/http";
-import { successalert } from "../../../utils/alert";
+import { successalert, erroralert } from "../../../utils/alert";
 import { mapActions, mapGetters } from "vuex";
 export default {
   props: ["info"],
@@ -86,16 +86,37 @@ export default {
       };
       this.attrsArr = [{ value: "" }];
     },
-    add() {
-      this.user.attrs = JSON.stringify(this.attrsArr.map((item) => item.value));
-      reqspecsAdd(this.user).then((res) => {
-        if (res.data.code == 200) {
-          successalert(res.data.msg);
-          this.cancel();
-          this.empty();
-          this.reqList();
-          this.reqTotal();
+
+    // 验证
+
+    checkProps() {
+      return new Promise((resolve, reject) => {
+        if (this.user.specsname == "") {
+          erroralert("规格名称不能为空");
+          return;
         }
+        if (this.attrsArr.some((item) => item.value == "")) {
+          erroralert("请输入所有的规格属性");
+          return;
+        }
+        resolve();
+      });
+    },
+
+    add() {
+      this.checkProps().then(() => {
+        this.user.attrs = JSON.stringify(
+          this.attrsArr.map((item) => item.value)
+        );
+        reqspecsAdd(this.user).then((res) => {
+          if (res.data.code == 200) {
+            successalert(res.data.msg);
+            this.cancel();
+            this.empty();
+            this.reqList();
+            this.reqTotal();
+          }
+        });
       });
     },
 
@@ -113,18 +134,22 @@ export default {
     },
     // 修改
     update() {
-      this.user.attrs = JSON.stringify(this.attrsArr.map((item) => item.value));
-      reqspecsUpdate(this.user).then((res) => {
-        if (res.data.code == 200) {
-          //弹成功
-          successalert(res.data.msg);
-          //弹框消失
-          this.cancel();
-          //数据清空
-          this.empty();
-          //刷新list
-          this.reqList();
-        }
+      this.checkProps().then(() => {
+        this.user.attrs = JSON.stringify(
+          this.attrsArr.map((item) => item.value)
+        );
+        reqspecsUpdate(this.user).then((res) => {
+          if (res.data.code == 200) {
+            //弹成功
+            successalert(res.data.msg);
+            //弹框消失
+            this.cancel();
+            //数据清空
+            this.empty();
+            //刷新list
+            this.reqList();
+          }
+        });
       });
     },
   },

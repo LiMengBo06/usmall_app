@@ -33,7 +33,7 @@ import {
   reqmemberDetail,
   reqmemberUpdate,
 } from "../../../utils/http";
-import { successalert } from "../../../utils/alert";
+import { successalert,erroralert } from "../../../utils/alert";
 export default {
   props: ["info", "list"],
   data() {

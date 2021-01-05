@@ -7,8 +7,7 @@
       @opened="opened"
     >
       <el-form :model="user">
-        <div>user:{{user}}</div>
-
+       
         <el-form-item label="一级分类" label-width="100px">
           <el-select v-model="user.first_cateid" @change="changeFirstCateId">
             <el-option label="--请选择--" value disabled></el-option>

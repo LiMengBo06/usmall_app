@@ -34,7 +34,7 @@
       <el-container>
         <el-header>
           <span>{{userInfo.username}}</span>
-          <el-button type="danger" @click="goout">退出登录</el-button>
+          <el-button class="left" type="danger" @click="goout">退出登录</el-button>
         </el-header>
 
         <!-- 主体 -->
@@ -45,7 +45,7 @@
             <el-breadcrumb-item>{{$route.name}}</el-breadcrumb-item>
           </el-breadcrumb>
           <!-- 二级路由出口 -->
-          <router-view></router-view>
+          <router-view class="con"></router-view>
         </el-main>
       </el-container>
     </el-container>
@@ -81,5 +81,16 @@ export default {
 }
 .el-header {
   background: #b3c0d1;
+}
+.el-header span{
+  font-size: 20px;
+  line-height: 60px;
+}
+.con{
+  padding-top: 20px;
+}
+.left{
+  float: right;
+  margin-top: 10px;
 }
 </style>

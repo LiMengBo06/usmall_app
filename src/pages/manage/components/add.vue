@@ -32,7 +32,6 @@
         <el-button type="primary" @click="add" v-if="info.isadd">添 加</el-button>
         <el-button type="primary" @click="update" v-else>修 改</el-button>
       </div>
-      {{user}}
     </el-dialog>
   </div>
 </template>
@@ -44,7 +43,7 @@ import {
   reqmanageDetail,
   reqmanageUpdate,
 } from "../../../utils/http";
-import { successalert } from "../../../utils/alert";
+import { erroralert, successalert } from "../../../utils/alert";
 export default {
   props: ["info", "list"],
   data() {

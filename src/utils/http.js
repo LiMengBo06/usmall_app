@@ -455,3 +455,48 @@ export const reqgoodsCount=()=>{
         url:baseUrl+"/api/goodscount"
     })
 }
+
+// 限时秒杀
+
+// 添加
+export const reqseckAdd = (user) =>{
+    return axios({
+        url:baseUrl + "/api/seckadd",
+        method: "post",
+        data: qs.stringify(user)
+    })
+}
+
+//列表
+export const reqsecklist = () => {
+    return axios({
+        url: baseUrl + "/api/secklist",
+    })
+}
+
+// 详情
+export const reqseckDetail = (id) => {
+    return axios({
+        url: baseUrl + "/api/seckinfo",
+        method: "get",
+        params: id
+    })
+}
+
+// 修改
+export const reqseckUpdate = (user) => {
+    return axios({
+        url: baseUrl + "/api/seckedit",
+        method: "post",
+        data: qs.stringify(user)
+    })
+}
+
+// 删除
+export const reqseckDel = (id) => {
+    return axios({
+        url: baseUrl + "/api/seckdelete",
+        method: "post",
+        data: qs.stringify(id)
+    })
+}

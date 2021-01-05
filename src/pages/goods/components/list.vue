@@ -14,6 +14,12 @@
           <div>{{scope.row.price}}</div>
         </template>
       </el-table-column>
+      <el-table-column label="市场价格" sortable>
+        <template slot-scope="scope">
+          <div>{{scope.row.market_price}}</div>
+        </template>
+      </el-table-column>
+
       <el-table-column label="图片">
         <template slot-scope="scope">
           <img :src="$pre+scope.row.img" alt />

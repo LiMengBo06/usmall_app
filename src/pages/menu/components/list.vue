@@ -14,7 +14,9 @@
           <i :class="scope.row.icon"></i>
         </template>
       </el-table-column>
-      <el-table-column prop="name" label="菜单地址"></el-table-column>
+      <el-table-column prop="url" label="菜单地址">
+
+      </el-table-column>
       <el-table-column label="状态">
         <el-button type="primary">启用</el-button>
       </el-table-column>

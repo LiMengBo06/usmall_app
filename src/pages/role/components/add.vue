@@ -7,7 +7,7 @@
         </el-form-item>
 
         <el-form-item label="角色权限" label-width="100px">
-            <el-tree
+          <el-tree
             :data="menuList"
             show-checkbox
             node-key="id"
@@ -26,37 +26,48 @@
         <el-button type="primary" @click="add" v-if="info.isadd">添 加</el-button>
         <el-button type="primary" @click="update" v-else>修 改</el-button>
       </div>
-      {{user}}
     </el-dialog>
   </div>
 </template>
 
 <script>
-import { reqRoleAdd, reqRoleDetail, reqRoleUpdate,reqMenulist } from "../../../utils/http";
-import { successalert } from "../../../utils/alert";
+import {
+  reqRoleAdd,
+  reqRoleDetail,
+  reqRoleUpdate,
+  reqMenulist,
+} from "../../../utils/http";
+import { successalert,erroralert } from "../../../utils/alert";
+import { mapActions, mapGetters } from "vuex";
 export default {
   props: ["info", "list"],
   data() {
     return {
-      menuList:[],
+      menuList: [],
       user: {
-        menus:"",
-        rolename:"",
+        menus: "",
+        rolename: "",
         status: 1,
       },
-     
-     
     };
   },
-  mounted(){
-    reqMenulist().then(res=>{
-      if(res.data.code==200){
-        this.menuList=res.data.list
+  mounted() {
+    reqMenulist().then((res) => {
+      if (res.data.code == 200) {
+        this.menuList = res.data.list;
       }
+    });
+  },
+  computed:{
+    ...mapGetters({
+      userInfo: "userInfo"
     })
 
   },
   methods: {
+    ...mapActions({
+      changeUser: "changeUser",
+    }),
     cancel() {
       if (!this.info.isadd) {
         this.empty();
@@ -64,40 +75,37 @@ export default {
       this.info.isshow = false;
     },
     empty() {
-      this.user= {
-        menus:"",
-        rolename:"",
+      this.user = {
+        menus: "",
+        rolename: "",
         status: 1,
       };
-      this.$refs.tree.setCheckedKeys([])
+      this.$refs.tree.setCheckedKeys([]);
     },
     // 验证
-     checkProps(){
-    return new Promise((resolve,reject)=>{
-       if (this.user.rolename == "") {
-          erroralert("请输入角色名称");
-          return;
-        }
-        resolve();
-
-    });
-
-  },   
+    // checkProps() {
+    //   return new Promise((resolve, reject) => {
+    //     if (this.user.rolename == "") {
+    //       erroralert("请输入角色名称");
+    //       return;
+    //     }
+    //     resolve();
+    //   });
+    // },
 
     // 清空
-    add() { 
-       this.checkProps().then(() => {
-            this.user.menus=JSON.stringify(this.$refs.tree.getCheckedKeys())
-      reqRoleAdd(this.user).then((res) => {
-        if (res.data.code == 200) {
-          successalert(res.data.msg);
-          this.cancel();
-          this.empty();
-          this.$emit("init");
-        }
-      });
+    add() {
+      // this.checkProps().then(() => {
+        this.user.menus = JSON.stringify(this.$refs.tree.getCheckedKeys());
+        reqRoleAdd(this.user).then((res) => {
+          if (res.data.code == 200) {
+            successalert(res.data.msg);
+            this.cancel();
+            this.empty();
+            this.$emit("init");
+          }
         });
-     
+      // });
     },
     //   修改顶级菜单
     changePid() {
@@ -115,35 +123,36 @@ export default {
           //补id
           this.user.id = id;
 
-          this.$refs.tree.setCheckedKeys(JSON.parse(this.user.menus))
+          this.$refs.tree.setCheckedKeys(JSON.parse(this.user.menus));
         }
       });
     },
     // 修改
     update() {
-       this.checkProps().then(() => {
-            this.user.menus=JSON.stringify(this.$refs.tree.getCheckedKeys())
-      reqRoleUpdate(this.user).then((res) => {
-        if (res.data.code == 200) {
-          //弹成功
-          successalert(res.data.msg);
+      // this.checkProps().then(() => {
+        this.user.menus = JSON.stringify(this.$refs.tree.getCheckedKeys());
+        reqRoleUpdate(this.user).then((res) => {
+          if (res.data.code == 200) {
+            //弹成功
+            successalert(res.data.msg);
 
-          if(this.user.id==this.userInfo.roleid){
-            this.cahngeUser({});
-            this.$router.push("/login");
-            return;
+            if (this.user.id == this.userInfo.roleid) {
+              
+              this.changeUser({});
+              this.$router.push("/login");
+
+              return;
+            }
+
+            //弹框消失
+            this.cancel();
+            //数据清空
+            this.empty();
+            //刷新list
+            this.$emit("init");
           }
-
-          //弹框消失
-          this.cancel();
-          //数据清空
-          this.empty();
-          //刷新list
-          this.$emit("init");
-        }
-      });
         });
-      
+      // });
     },
   },
 };
